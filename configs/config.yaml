@@ -1,0 +1,96 @@
+# ─────────────────────────────────────────────────────
+# INFORMATIONS GÉNÉRALES DU PROJET
+# ─────────────────────────────────────────────────────
+project:
+  name: "ml-titanic"
+  version: "1.0.0"
+  random_seed: 42          # Graine aléatoire pour la reproductibilité
+  author: "Votre Nom"
+
+# ─────────────────────────────────────────────────────
+# CONFIGURATION DES DONNÉES
+# ─────────────────────────────────────────────────────
+data:
+  # URL de téléchargement du dataset Titanic
+  url: "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"
+  raw_path: "data/raw/titanic.csv"
+  processed_train_path: "data/processed/train.csv"
+  processed_test_path: "data/processed/test.csv"
+  test_size: 0.2           # 20% des données pour le test
+  validation_size: 0.1     # 10% des données pour la validation
+
+# ─────────────────────────────────────────────────────
+# CONFIGURATION DES FEATURES
+# ─────────────────────────────────────────────────────
+features:
+  target_column: "Survived"
+
+  # Features numériques continues
+  numerical_features:
+    - "Age"
+    - "Fare"
+    - "SibSp"
+    - "Parch"
+    - "FamilySize"      # Feature créée par feature engineering
+    - "FarePerPerson"   # Feature créée par feature engineering
+
+  # Features catégorielles à encoder
+  categorical_features:
+    - "Pclass"
+    - "Sex"
+    - "Embarked"
+    - "Title"           # Feature créée par feature engineering (Mr, Mrs, Miss...)
+
+  # Colonnes à supprimer (non pertinentes ou trop de valeurs manquantes)
+  columns_to_drop:
+    - "PassengerId"
+    - "Name"
+    - "Ticket"
+    - "Cabin"
+
+# ─────────────────────────────────────────────────────
+# CONFIGURATION DU MODÈLE
+# ─────────────────────────────────────────────────────
+model:
+  name: "RandomForestClassifier"
+  artifact_path: "models/random_forest.joblib"
+  preprocessor_path: "models/preprocessor.joblib"
+
+  # Hyperparamètres du Random Forest
+  params:
+    n_estimators: 200        # Nombre d'arbres dans la forêt
+    max_depth: 8             # Profondeur maximale de chaque arbre
+    min_samples_split: 5     # Nombre minimum d'échantillons pour diviser un nœud
+    min_samples_leaf: 2      # Nombre minimum d'échantillons dans une feuille
+    max_features: "sqrt"     # Nombre de features considérées à chaque split
+    class_weight: "balanced" # Gestion du déséquilibre de classes
+
+  # Seuil de performance minimum acceptable
+  performance_threshold:
+    accuracy: 0.78
+    f1_score: 0.75
+    roc_auc: 0.82
+
+# ─────────────────────────────────────────────────────
+# CONFIGURATION MLFLOW
+# ─────────────────────────────────────────────────────
+mlflow:
+  tracking_uri: "mlruns"
+  experiment_name: "titanic-survival-prediction"
+  model_registry_name: "TitanicSurvivalModel"
+
+# ─────────────────────────────────────────────────────
+# CONFIGURATION DU MONITORING
+# ─────────────────────────────────────────────────────
+monitoring:
+  drift_threshold: 0.05      # Seuil de p-value pour détecter un drift
+  report_path: "reports/drift_report.html"
+  metrics_path: "reports/metrics.json"
+
+# ─────────────────────────────────────────────────────
+# CONFIGURATION DE L'API
+# ─────────────────────────────────────────────────────
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
